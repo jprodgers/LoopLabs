@@ -79,7 +79,7 @@ if __name__ == "__main__":
     my_thread1 = threading.Thread(target=audioInput1.record_and_play, args=("q",))
     my_thread2 = threading.Thread(target=audioInput2.record_and_play, args=("w",))
     my_thread3 = threading.Thread(target=audioInput3.record_and_play, args=("e",))
-    my_thread4 = threading.Thread(target=audioInput3.record_and_play, args=("r",))
+    my_thread4 = threading.Thread(target=audioInput4.record_and_play, args=("r",))
 
     while True:
         userInput = input('Press a, b, c, or d to start recording. Press e to quit')
