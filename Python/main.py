@@ -7,7 +7,6 @@ CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 2
 RATE = 44100
-WAVE_OUTPUT_FILENAME = "voice.wav"
 
 # Uncomment the following to get the device info index
 
@@ -20,24 +19,9 @@ WAVE_OUTPUT_FILENAME = "voice.wav"
 #
 
 
-p = pyaudio.PyAudio()
-
-
-stream = p.open(format=FORMAT,
-                channels=CHANNELS,
-                rate=RATE,
-                input=True,
-                input_device_index=3,
-                frames_per_buffer=CHUNK)
-
-start_loop = False
-frames = []
-
-
-class AudioFile:
+class AudioOutput:
     def __init__(self):
         """ Init audio stream """
-        # self.wf = wave.open(file, 'rb')
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
             format=FORMAT,
@@ -52,37 +36,64 @@ class AudioFile:
             self.stream.write(data[i:i+CHUNK])
 
 
-print ('Press Space to start Recording')
-while not start_loop:
-    if keyboard.is_pressed('space'):
-        start_loop = True
+class AudioInput:
+    def __init__(self):
+        """ Init Audio Input for Recording """
+        self.p = pyaudio.PyAudio()
+        self.stream = self.p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    input_device_index=3,
+                    frames_per_buffer=CHUNK)
+        self.frames = []
 
-while start_loop:
-    print ('Recording')
+    def record_and_play(self, key):
+        while True:
+            print ('Recording %s' % key)
 
-    data = stream.read(CHUNK, exception_on_overflow=False)
-    frames.append(data)
+            data = self.stream.read(CHUNK, exception_on_overflow=False)
+            self.frames.append(data)
 
-    if keyboard.is_pressed('esc'):
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-        star_loop = False
-        break
+            if keyboard.is_pressed(key):
+                self.stream.stop_stream()
+                self.stream.close()
+                self.p.terminate()
+                break
 
-print ('Record Finished')
+        print ('Record Finished')
+        self.loop_play()
+
+    def loop_play(self):
+        while True:
+            a = AudioOutput()
+            a.play(b''.join(self.frames))
 
 
+if __name__ == "__main__":
+    audioInput1 = AudioInput()
+    audioInput2 = AudioInput()
+    audioInput3 = AudioInput()
+    audioInput4 = AudioInput()
 
-def loop_play():
+    my_thread1 = threading.Thread(target=audioInput1.record_and_play, args=("q",))
+    my_thread2 = threading.Thread(target=audioInput2.record_and_play, args=("w",))
+    my_thread3 = threading.Thread(target=audioInput3.record_and_play, args=("e",))
+    my_thread4 = threading.Thread(target=audioInput3.record_and_play, args=("r",))
+
     while True:
-        a = AudioFile()
-        a.play(b''.join(frames))
-        # a.close()
+        userInput = input('Press a, b, c, or d to start recording. Press e to quit')
+        if userInput == 'a':
+            my_thread1.start()
 
-def play_audio():
-    my_thread = threading.Thread(target=loop_play)
-    my_thread.start()
+        if userInput == 'b':
+            my_thread2.start()
 
+        if userInput == 'c':
+            my_thread3.start()
 
-play_audio()
+        if userInput == 'd':
+            my_thread4.start()
+
+        if userInput == 'p':
+            break
