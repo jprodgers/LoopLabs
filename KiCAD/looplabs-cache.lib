@@ -29,6 +29,20 @@ X DIN 4 -300 0 100 R 50 50 1 1 I
 ENDDRAW
 ENDDEF
 #
+# SparkFun-PowerSymbols_AGND
+#
+DEF SparkFun-PowerSymbols_AGND #M 0 40 N N 1 L P
+F0 "#M" 50 -50 45 H I L BNN
+F1 "SparkFun-PowerSymbols_AGND" -85 -200 45 H V L BNN
+F2 "XXX-00000" 0 100 60 H V C CNN
+F3 "" 0 -100 60 H I C CNN
+DRAW
+P 2 1 0 0 -75 -100 75 -100 N
+P 2 1 0 0 0 0 0 -100 N
+X AGND ~ 0 0 0 D 40 40 1 1 W N
+ENDDRAW
+ENDDEF
+#
 # SparkFun-PowerSymbols_GND2
 #
 DEF SparkFun-PowerSymbols_GND2 #GND 0 40 N N 1 L P
@@ -57,6 +71,21 @@ P 2 1 0 0 0 0 0 100 N
 P 2 1 0 0 0 100 -30 50 N
 P 2 1 0 0 30 50 0 100 N
 X VCC ~ 0 0 0 U 40 40 1 1 W N
+ENDDRAW
+ENDDEF
+#
+# SparkFun-PowerSymbols_VCC_2
+#
+DEF SparkFun-PowerSymbols_VCC_2 #SUPPLY 0 40 N N 1 L P
+F0 "#SUPPLY" 50 0 45 H I L BNN
+F1 "SparkFun-PowerSymbols_VCC_2" -100 150 45 H V L BNN
+F2 "XXX-00000" 0 300 60 H V C CNN
+F3 "" 0 0 60 H I C CNN
+DRAW
+P 2 1 0 0 0 0 0 100 N
+P 2 1 0 0 0 100 -30 50 N
+P 2 1 0 0 30 50 0 100 N
+X VCC_2 ~ 0 0 0 U 40 40 1 1 W N
 ENDDRAW
 ENDDEF
 #
