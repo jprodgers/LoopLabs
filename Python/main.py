@@ -1,7 +1,8 @@
 import pyaudio
-import wave
 import keyboard
 import threading
+import sys
+import mido
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
@@ -17,6 +18,13 @@ RATE = 44100
 #             print ("Input Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name'))
 #
 #
+
+if len(sys.argv) > 1:
+    portname = sys.argv[1]
+else:
+    portname = None
+
+print (portname)
 
 
 class AudioOutput:
@@ -47,15 +55,14 @@ class AudioInput:
                     input_device_index=3,
                     frames_per_buffer=CHUNK)
         self.frames = []
+        self.startPlaying = False
 
-    def record_and_play(self, key):
+    def record_and_play(self):
         while True:
-            print ('Recording %s' % key)
-
             data = self.stream.read(CHUNK, exception_on_overflow=False)
             self.frames.append(data)
 
-            if keyboard.is_pressed(key):
+            if not self.startPlaying:
                 self.stream.stop_stream()
                 self.stream.close()
                 self.p.terminate()
@@ -76,24 +83,42 @@ if __name__ == "__main__":
     audioInput3 = AudioInput()
     audioInput4 = AudioInput()
 
-    my_thread1 = threading.Thread(target=audioInput1.record_and_play, args=("q",))
-    my_thread2 = threading.Thread(target=audioInput2.record_and_play, args=("w",))
-    my_thread3 = threading.Thread(target=audioInput3.record_and_play, args=("e",))
-    my_thread4 = threading.Thread(target=audioInput4.record_and_play, args=("r",))
+    my_thread1 = threading.Thread(target=audioInput1.record_and_play)
+    my_thread2 = threading.Thread(target=audioInput2.record_and_play)
+    my_thread3 = threading.Thread(target=audioInput3.record_and_play)
+    my_thread4 = threading.Thread(target=audioInput4.record_and_play)
 
-    while True:
-        userInput = input('Press a, b, c, or d to start recording. Press e to quit')
-        if userInput == 'a':
-            my_thread1.start()
+    try:
+        with mido.open_input(portname) as port:
+            print('Using {}'.format(port))
+            print('Waiting for messages...')
+            msgDict = {}
+            for message in port:
+                msgDict = message.dict()
 
-        if userInput == 'b':
-            my_thread2.start()
+                if msgDict['type'] == 'note_on' and msgDict['note'] == 60:
+                    audioInput1.startPlaying = True
+                    my_thread1.start()
+                elif msgDict['type'] == 'note_off' and msgDict['note'] == 60:
+                    audioInput1.startPlaying = False
 
-        if userInput == 'c':
-            my_thread3.start()
+                if msgDict['type'] == 'note_on' and msgDict['note'] == 61:
+                    audioInput2.startPlaying = True
+                    my_thread2.start()
+                elif msgDict['type'] == 'note_off' and msgDict['note'] == 61:
+                    audioInput2.startPlaying = False
 
-        if userInput == 'd':
-            my_thread4.start()
+                if msgDict['type'] == 'note_on' and msgDict['note'] == 62:
+                    audioInput3.startPlaying = True
+                    my_thread3.start()
+                elif msgDict['type'] == 'note_off' and msgDict['note'] == 62:
+                    audioInput3.startPlaying = False
 
-        if userInput == 'p':
-            break
+                if msgDict['type'] == 'note_on' and msgDict['note'] == 63:
+                    audioInput4.startPlaying = True
+                    my_thread4.start()
+                elif msgDict['type'] == 'note_off' and msgDict['note'] == 63:
+                    audioInput4.startPlaying = False
+
+    except KeyboardInterrupt:
+        pass
