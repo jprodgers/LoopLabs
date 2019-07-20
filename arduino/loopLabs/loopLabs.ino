@@ -46,6 +46,9 @@ Adafruit_NeoPixel pixels(NUMPIXELS, NEOPIN, NEO_GRB + NEO_KHZ800);
 #define RED 0,100,0
 #define BLUE 0,0,100
 
+// didn't have time to emplement the knobs or LEDs, so we're just faking it
+#define FAKE_IT true
+
 //******VARIABLES***********
 // a data array and a lagged copy to tell when MIDI changes are required
 byte data[A_PINS];
@@ -121,6 +124,15 @@ void getAnalogData(){
     // if the repsonsive value has change, print out 'changed'
     if(analog[i].hasChanged()) {
       data[i] = analog[i].getValue()>>3;
+
+      // Didn't have time to do anything with the analog pots, so we're using them
+      // to map the lights to a rainbow so the presentation looks nicer. :-P
+      #if defined FAKE_IT
+        int rainbowOut = map(data[i], 0, 127, 0, 65536);
+        pixels.setPixelColor(i, pixels.gamma32(pixels.ColorHSV(rainbowOut)));
+        pixels.show();
+      #endif
+      
       if (data[i] != dataLag[i]){
         dataLag[i] = data[i];
         usbMIDI.sendControlChange(CCID[i], data[i], channel);
